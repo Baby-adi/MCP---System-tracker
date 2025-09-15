@@ -1,11 +1,11 @@
 # MCP System Monitor
 
-A comprehensive real-time system monitoring solution built with a Python MCP (Model Context Protocol) server and React TypeScript dashboard. Features WebSocket communication with JSON-RPC 2.0 protocol for live monitoring of CPU, memory, GPU, disk usage, processes, and system logs.
+A comprehensive real-time system monitoring solution built with a Python MCP (Model Context Protocol) server and React TypeScript dashboard. Features WebSocket communication with JSON-RPC 2.0 protocol for live monitoring of CPU, memory, disk usage, processes, and system logs.
 
 ## Features
 
 ### MCP Server (Python)
-- **Real-time System Monitoring**: CPU, memory, disk, and GPU usage tracking with psutil and GPUtil
+- **Real-time System Monitoring**: CPU, memory, and disk usage tracking with psutil
 - **Process Management**: Monitor top processes by CPU/memory usage with detailed process information
 - **Intelligent Logging**: Automatic system event logging with severity levels and file rotation
 - **WebSocket Communication**: High-performance real-time data streaming using JSON-RPC 2.0 protocol
@@ -32,8 +32,8 @@ A comprehensive real-time system monitoring solution built with a Python MCP (Mo
          │                                    │
     ┌────▼────┐                          ┌───▼────┐
     │Tailwind │                          │ psutil │
-    │Recharts │                          │ GPUtil │
-    │ Lucide  │                          │aiofiles│
+    │Recharts │                          │aiofiles│
+    │ Lucide  │                          │        │
     └─────────┘                          └────────┘
 ```
 
@@ -41,7 +41,7 @@ A comprehensive real-time system monitoring solution built with a Python MCP (Mo
 
 **Backend (Python)**
 - **WebSocket Server**: `websockets` library with async/await
-- **System Monitoring**: `psutil` for system metrics, `GPUtil` for GPU monitoring
+- **System Monitoring**: `psutil` for system metrics
 - **Protocol**: JSON-RPC 2.0 for structured communication
 - **Logging**: `aiofiles` for async file operations
 - **Background Tasks**: asyncio for concurrent monitoring
@@ -60,7 +60,7 @@ A comprehensive real-time system monitoring solution built with a Python MCP (Mo
 MCP/
 ├── server/                      # Python MCP Server
 │   ├── __init__.py
-│   ├── system_monitor.py        # System stats collection with psutil/GPUtil
+│   ├── system_monitor.py        # System stats collection with psutil
 │   ├── log_manager.py           # Async logging with file rotation
 │   ├── jsonrpc_handler.py       # JSON-RPC 2.0 protocol implementation
 │   └── websocket_server.py      # WebSocket server with client management
@@ -165,7 +165,6 @@ MCP/
 | `CPU_ALERT_THRESHOLD` | 80.0 | CPU usage alert threshold (%) |
 | `MEMORY_ALERT_THRESHOLD` | 90.0 | Memory usage alert threshold (%) |
 | `DISK_ALERT_THRESHOLD` | 95.0 | Disk usage alert threshold (%) |
-| `GPU_ALERT_THRESHOLD` | 90.0 | GPU memory usage alert threshold (%) |
 | `PROCESS_MONITOR_LIMIT` | 10 | Number of top processes to monitor |
 | `LOG_RETENTION_DAYS` | 7 | Days to retain log files |
 
@@ -175,7 +174,6 @@ The system automatically monitors and generates alerts for:
 - **CPU Usage** > 80% (configurable)
 - **Memory Usage** > 90% (configurable)  
 - **Disk Usage** > 95% (configurable)
-- **GPU Memory** > 90% (if GPU detected, configurable)
 - **Process Anomalies** (high CPU/memory usage)
 
 ### Theme System
@@ -209,7 +207,6 @@ The system automatically monitors and generates alerts for:
     "cpu": {"usage": 25.4, "cores": 8, "frequency": 3200},
     "memory": {"used": 8.2, "total": 16.0, "percent": 51.25},
     "disk": {"used": 250.5, "total": 500.0, "percent": 50.1},
-    "gpu": {"memory_used": 2.1, "memory_total": 8.0, "utilization": 15.2},
     "uptime": 86400
   },
   "id": 1
@@ -323,7 +320,6 @@ npm run build
 - `websockets>=11.0.0` - WebSocket server
 - `aiofiles>=23.0.0` - Async file operations  
 - `pydantic>=2.0.0` - Data validation
-- `GPUtil>=1.4.0` - GPU monitoring
 
 **Node.js Dependencies (`dashboard/package.json`):**
 - `react` & `react-dom` - UI framework
@@ -375,9 +371,9 @@ Error: WebSocket connection failed
 ```
 Warning: GPU monitoring unavailable
 ```
-- **Solution**: Install NVIDIA drivers and ensure GPU is detected
-- **Check**: `nvidia-smi` command works in terminal
-- **Alternative**: GPU monitoring gracefully degrades if not available
+- **Note**: GPU monitoring is not currently implemented in this version
+- **Alternative**: Focus on CPU, memory, and disk monitoring for comprehensive system oversight
+- **Future**: GPU monitoring may be added in future releases
 
 **High CPU Usage**
 ```
@@ -408,32 +404,10 @@ System stats showing but charts frozen
 **For Lower Resource Usage:**
 - Set `STATS_UPDATE_INTERVAL=5` for 5-second updates instead of 2
 - Reduce `PROCESS_MONITOR_LIMIT=5` to monitor fewer processes
-- Disable GPU monitoring if not needed
 
 **For Better Responsiveness:**
 - Use `STATS_UPDATE_INTERVAL=1` for 1-second updates
 - Increase `PROCESS_MONITOR_LIMIT=20` for more detailed process view
 - Enable debug logging: `LOG_LEVEL=DEBUG`
 
-## Roadmap
-
-### Planned Features
-- [ ] **Historical Data**: Database storage for trend analysis
-- [ ] **Multi-node Support**: Monitor multiple systems from one dashboard
-- [ ] **Authentication**: User management and secure access
-- [ ] **Notifications**: Email/Slack alerts for critical events
-- [ ] **Docker Support**: Containerized deployment
-- [ ] **Data Persistence**: SQLite/PostgreSQL integration
-- [ ] **Process Management**: Kill/restart processes from dashboard
-- [ ] **Advanced Analytics**: Performance profiling and anomaly detection
-
-### Recently Added
-- [x] **Dark/Light Theme**: Complete theme system with persistence
-- [x] **Responsive Design**: Mobile-optimized dashboard
-- [x] **Real-time WebSocket**: JSON-RPC 2.0 communication
-- [x] **Modern UI**: Tailwind CSS with professional design
-- [x] **Interactive Charts**: Recharts integration with live data
-
 ---
-
-**Made with care for system administrators and developers who need reliable, real-time system monitoring.**
