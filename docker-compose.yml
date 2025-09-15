@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # Production build - single container with both backend and frontend
+  mcp-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8765:8765"
+      - "3000:3000"
+    environment:
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8765
+      - LOG_LEVEL=INFO
+      - STATS_UPDATE_INTERVAL=2.0
+      - CPU_ALERT_THRESHOLD=80.0
+      - MEMORY_ALERT_THRESHOLD=90.0
+      - DISK_ALERT_THRESHOLD=95.0
+    volumes:
+      - ./logs:/app/logs
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc:/host/etc:ro
+    privileged: true
+    restart: unless-stopped
+    networks:
+      - mcp-network
+
+networks:
+  mcp-network:
+    driver: bridge
+
+volumes:
+  logs-data:

@@ -9,7 +9,6 @@ from server.config import Config
 
 
 async def main():
-    """Main function to start the MCP server"""
     try:
         # Create server instance with configuration - force IPv4
         server_instance = MCPWebSocketServer(host="0.0.0.0", port=8765)
