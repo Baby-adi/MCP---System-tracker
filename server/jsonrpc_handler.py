@@ -3,6 +3,7 @@ JSON-RPC 2.0 protocol handler for the MCP server.
 """
 import json
 import uuid
+import inspect
 from typing import Dict, Any, Optional, Callable
 from datetime import datetime
 
@@ -96,13 +97,16 @@ class JSONRPCHandler:
         try:
             method = self.methods[method_name]
             
+            # Check if method is async
+            is_async = inspect.iscoroutinefunction(method)
+            
             # Call method with parameters
             if isinstance(params, dict):
-                result = await method(**params) if hasattr(method, '__call__') and hasattr(method, '__await__') else method(**params)
+                result = await method(**params) if is_async else method(**params)
             elif isinstance(params, list):
-                result = await method(*params) if hasattr(method, '__call__') and hasattr(method, '__await__') else method(*params)
+                result = await method(*params) if is_async else method(*params)
             else:
-                result = await method() if hasattr(method, '__call__') and hasattr(method, '__await__') else method()
+                result = await method() if is_async else method()
             
             # Return response for requests (not notifications)
             if request_id is not None:

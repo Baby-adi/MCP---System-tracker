@@ -24,9 +24,9 @@ class Config:
     """Configuration class for MCP server settings"""
     
     # Server Configuration
-    MCP_HOST: str = os.getenv("MCP_HOST", "localhost")
+    MCP_HOST: str = os.getenv("MCP_HOST", "0.0.0.0")
     MCP_PORT: int = int(os.getenv("MCP_PORT", "8765"))
-    MCP_DEBUG: bool = os.getenv("MCP_DEBUG", "false").lower() == "true"
+    MCP_DEBUG: bool = os.getenv("MCP_DEBUG", "true").lower() == "true"
     
     # Logging Configuration
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")

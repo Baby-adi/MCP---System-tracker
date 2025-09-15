@@ -18,7 +18,7 @@ from .log_manager import LogManager
 class MCPWebSocketServer:
     """WebSocket server for MCP system monitoring"""
     
-    def __init__(self, host: str = "localhost", port: int = 8765):
+    def __init__(self, host: str = "127.0.0.1", port: int = 8765):
         self.host = host
         self.port = port
         self.clients: Dict[str, websockets.WebSocketServerProtocol] = {}
@@ -119,29 +119,47 @@ class MCPWebSocketServer:
             "timestamp": datetime.now().isoformat()
         }
     
-    async def handle_client(self, websocket, path):
+    async def handle_client(self, websocket, path=None):
         """Handle new client connection"""
+        print(f"DEBUG: handle_client called with path={path}")
         client_id = str(uuid.uuid4())
-        self.clients[client_id] = websocket
-        
-        self.log_manager.log_message("INFO", f"Client connected: {client_id}", "websocket")
         
         try:
+            client_addr = websocket.remote_address
+            print(f"DEBUG: Client address: {client_addr}")
+            
+            self.clients[client_id] = websocket
+            print(f"DEBUG: Client {client_id} added to clients dict")
+            
+            # Skip log manager for now
+            # self.log_manager.log_message("INFO", f"Client connected: {client_id} from {client_addr}", "websocket")
+            
             async for message in websocket:
-                # Handle JSON-RPC request
-                response = await self.rpc_handler.handle_request(message, client_id)
-                
-                if response:
-                    await websocket.send(response)
+                print(f"DEBUG: Received message from {client_id}: {message[:100]}...")
+                try:
+                    # Handle JSON-RPC request
+                    response = await self.rpc_handler.handle_request(message, client_id)
+                    print(f"DEBUG: Generated response for {client_id}")
+                    
+                    if response:
+                        await websocket.send(response)
+                        print(f"DEBUG: Sent response to {client_id}")
+                except Exception as e:
+                    print(f"DEBUG: Error processing message from {client_id}: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
                     
         except websockets.exceptions.ConnectionClosed:
-            self.log_manager.log_message("INFO", f"Client disconnected: {client_id}", "websocket")
+            print(f"DEBUG: Client {client_id} disconnected normally")
         except Exception as e:
-            self.log_manager.log_message("ERROR", f"Error handling client {client_id}: {str(e)}", "websocket")
+            print(f"DEBUG: Exception in handle_client for {client_id}: {str(e)}")
+            import traceback
+            traceback.print_exc()
         finally:
-            # Clean up client
+            # Clean up
             if client_id in self.clients:
                 del self.clients[client_id]
+                print(f"DEBUG: Cleaned up client {client_id}")
             self.rpc_handler.remove_client_subscriptions(client_id)
     
     async def broadcast_to_subscribers(self, method: str, data: Dict):
@@ -275,12 +293,27 @@ class MCPWebSocketServer:
         """Start the WebSocket server and background tasks"""
         self.log_manager.log_message("INFO", f"Starting MCP WebSocket server on {self.host}:{self.port}", "server")
         
-        # Start background tasks
-        self._stats_broadcast_task = asyncio.create_task(self.stats_broadcast_loop())
-        self._log_cleanup_task = asyncio.create_task(self.log_cleanup_loop())
+        print("DEBUG: Starting WebSocket server...")
         
-        # Start WebSocket server
-        server = await websockets.serve(self.handle_client, self.host, self.port)
+        # Start WebSocket server first - force IPv4
+        import socket
+        server = await websockets.serve(
+            self.handle_client, 
+            self.host, 
+            self.port,
+            family=socket.AF_INET  # Force IPv4
+        )
+        print("DEBUG: WebSocket server created successfully")
+        
+        # Re-enable background tasks - they might be needed for server stability
+        print("DEBUG: Starting background tasks...")
+        try:
+            self._stats_broadcast_task = asyncio.create_task(self.stats_broadcast_loop())
+            self._log_cleanup_task = asyncio.create_task(self.log_cleanup_loop())
+            print("DEBUG: Background tasks started successfully")
+        except Exception as e:
+            print(f"DEBUG: Error starting background tasks: {e}")
+            # Continue without background tasks
         
         self.log_manager.log_message("INFO", f"MCP WebSocket server started successfully", "server")
         
