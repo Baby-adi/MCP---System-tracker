@@ -12,10 +12,20 @@ RUN npm run build
 # Stage 2: Python backend with static files
 FROM python:3.9-slim AS backend
 
+# Add metadata labels
+LABEL org.opencontainers.image.title="MCP System Monitor"
+LABEL org.opencontainers.image.description="Real-time system monitoring with web dashboard"
+LABEL org.opencontainers.image.author="Baby-adi"
+LABEL org.opencontainers.image.source="https://github.com/Baby-adi/MCP---System-tracker"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.documentation="https://github.com/Baby-adi/MCP---System-tracker/blob/main/README.md"
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
-    && rm -rf /var/lib/apt/lists/*
+    procps \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Set working directory
 WORKDIR /app
@@ -35,7 +45,12 @@ COPY --from=frontend-builder /app/dashboard/build ./static
 # Create logs directory
 RUN mkdir -p logs
 
-# Expose port
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash mcp \
+    && chown -R mcp:mcp /app
+USER mcp
+
+# Expose ports
 EXPOSE 8765
 EXPOSE 3000
 

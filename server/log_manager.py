@@ -1,6 +1,3 @@
-"""
-Logging system for collecting and managing system logs.
-"""
 import os
 import json
 import logging
@@ -12,7 +9,6 @@ import aiofiles
 
 
 class LogManager:
-    """Manages system logging and log retrieval"""
     
     def __init__(self, log_directory: str = "logs"):
         self.log_directory = Path(log_directory)
@@ -27,7 +23,6 @@ class LogManager:
         self._log_collection_task = None
     
     def setup_logging(self):
-        """Setup logging configuration"""
         # Create logger
         self.logger = logging.getLogger('system_monitor')
         self.logger.setLevel(logging.INFO)
@@ -48,7 +43,6 @@ class LogManager:
             self.logger.addHandler(handler)
     
     def log_system_stats(self, stats: Dict):
-        """Log system statistics"""
         try:
             # Check for alerts and log them
             cpu_percent = stats.get('cpu', {}).get('percent', 0)
@@ -84,7 +78,6 @@ class LogManager:
             self.logger.error(f"Error logging system stats: {e}")
     
     def log_message(self, level: str, message: str, component: str = "system"):
-        """Log a custom message"""
         log_entry = {
             "timestamp": datetime.now().isoformat(),
             "level": level.upper(),
@@ -110,8 +103,6 @@ class LogManager:
     async def get_logs(self, limit: int = 100, level_filter: Optional[str] = None, 
                       search_term: Optional[str] = None, hours_back: int = 24) -> List[Dict]:
         """
-        Retrieve logs with filtering options.
-        
         Args:
             limit: Maximum number of log entries to return
             level_filter: Filter by log level (INFO, WARNING, ERROR)
@@ -143,7 +134,6 @@ class LogManager:
     
     def _filter_logs(self, logs: List[Dict], level_filter: Optional[str], 
                     search_term: Optional[str], hours_back: int) -> List[Dict]:
-        """Apply filters to log entries"""
         filtered = logs
         
         # Filter by time
@@ -167,7 +157,6 @@ class LogManager:
     
     async def _read_log_files(self, limit: int, level_filter: Optional[str], 
                              search_term: Optional[str], hours_back: int) -> List[Dict]:
-        """Read logs from files"""
         logs = []
         
         try:
@@ -202,7 +191,6 @@ class LogManager:
         return logs
     
     def _parse_log_line(self, line: str) -> Optional[Dict]:
-        """Parse a log line into structured format"""
         try:
             # Expected format: "2023-01-01 12:00:00,000 - system_monitor - INFO - [component] message"
             parts = line.split(' - ', 3)
@@ -238,7 +226,6 @@ class LogManager:
     
     def _should_include_log(self, log: Dict, level_filter: Optional[str], 
                            search_term: Optional[str], hours_back: int) -> bool:
-        """Check if log entry should be included based on filters"""
         # Time filter
         if hours_back:
             cutoff_time = datetime.now() - timedelta(hours=hours_back)
@@ -257,7 +244,6 @@ class LogManager:
         return True
     
     def cleanup_old_logs(self, days_to_keep: int = 7):
-        """Clean up log files older than specified days"""
         try:
             cutoff_date = datetime.now() - timedelta(days=days_to_keep)
             

@@ -14,13 +14,10 @@ This guide explains how to run the MCP System Monitor using Docker.
 ### Production Deployment (Single Container)
 
 ```bash
-# Build and run the complete application
 docker-compose up --build
 
-# Run in background
 docker-compose up -d --build
 
-# View logs
 docker-compose logs -f
 
 # Stop the application

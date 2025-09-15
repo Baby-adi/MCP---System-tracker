@@ -98,7 +98,31 @@ MCP/
 - **Node.js 16+** with npm
 - **Git** for version control
 
-### Installation
+## Installation Options
+
+### Option 1: Docker (Recommended - Quick Start)
+
+**Pull and run the pre-built Docker image:**
+
+```bash
+docker run -d --name mcp-monitor \
+  --privileged \
+  -p 3000:3000 -p 8765:8765 \
+  -v /proc:/host/proc:ro \
+  -v /sys:/host/sys:ro \
+  babyadi/mcp-system-monitor:v1.0.0
+```
+
+**Docker Hub Repository:** https://hub.docker.com/r/babyadi/mcp-system-monitor
+
+Access the dashboard at `http://localhost:3000` - no additional setup required!
+
+**Requirements for Docker:**
+- Docker Desktop installed and running
+- Privileged mode (required for system monitoring)
+- Ports 3000 and 8765 available
+
+### Option 2: Manual Installation
 
 1. **Clone the repository**
    ```bash
@@ -131,7 +155,7 @@ MCP/
    # Default values work for local development
    ```
 
-### Running the Application
+### Running the Application (Manual Installation)
 
 1. **Start the MCP Server** (Terminal 1)
    ```bash

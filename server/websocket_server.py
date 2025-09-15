@@ -16,7 +16,6 @@ from .log_manager import LogManager
 
 
 class MCPWebSocketServer:
-    """WebSocket server for MCP system monitoring"""
     
     def __init__(self, host: str = "127.0.0.1", port: int = 8765):
         self.host = host
@@ -36,7 +35,6 @@ class MCPWebSocketServer:
         self._log_cleanup_task = None
     
     def _setup_rpc_methods(self):
-        """Setup available JSON-RPC methods"""
         # System monitoring methods
         self.rpc_handler.register_method("get_system_stats", self.get_system_stats)
         self.rpc_handler.register_method("get_processes", self.get_processes)
@@ -52,7 +50,6 @@ class MCPWebSocketServer:
         self.rpc_handler.register_subscription("alerts")
     
     async def get_system_stats(self) -> Dict:
-        """Get current system statistics"""
         stats = self.system_monitor.get_system_stats()
         
         # Log the stats for monitoring
@@ -61,7 +58,6 @@ class MCPWebSocketServer:
         return stats
     
     async def get_processes(self, limit: int = 10, sort_by: str = "cpu") -> Dict:
-        """Get top processes"""
         if limit > 50:  # Limit to prevent excessive data
             limit = 50
         
@@ -75,7 +71,6 @@ class MCPWebSocketServer:
     
     async def get_logs(self, limit: int = 100, level_filter: str = None, 
                       search_term: str = None, hours_back: int = 24) -> Dict:
-        """Get system logs with filtering"""
         if limit > 500:  # Limit to prevent excessive data
             limit = 500
         
@@ -120,7 +115,6 @@ class MCPWebSocketServer:
         }
     
     async def handle_client(self, websocket, path=None):
-        """Handle new client connection"""
         print(f"DEBUG: handle_client called with path={path}")
         client_id = str(uuid.uuid4())
         
@@ -163,7 +157,6 @@ class MCPWebSocketServer:
             self.rpc_handler.remove_client_subscriptions(client_id)
     
     async def broadcast_to_subscribers(self, method: str, data: Dict):
-        """Broadcast data to all subscribers of a method"""
         subscribers = self.rpc_handler.get_subscribers(method)
         
         if not subscribers:
@@ -192,7 +185,6 @@ class MCPWebSocketServer:
             self.rpc_handler.remove_client_subscriptions(client_id)
     
     async def stats_broadcast_loop(self):
-        """Background task to broadcast system stats to subscribers"""
         while True:
             try:
                 # Get current stats
@@ -212,7 +204,6 @@ class MCPWebSocketServer:
                 await asyncio.sleep(5)  # Wait longer on error
     
     async def _check_and_broadcast_alerts(self, stats: Dict):
-        """Check for system alerts and broadcast them"""
         alerts = []
         
         # Check CPU usage
@@ -276,7 +267,6 @@ class MCPWebSocketServer:
             await self.broadcast_to_subscribers("alerts", alert_data)
     
     async def log_cleanup_loop(self):
-        """Background task to clean up old logs"""
         while True:
             try:
                 # Clean up logs older than 7 days
@@ -290,7 +280,6 @@ class MCPWebSocketServer:
                 await asyncio.sleep(60 * 60)  # Wait 1 hour on error
     
     async def start_server(self):
-        """Start the WebSocket server and background tasks"""
         self.log_manager.log_message("INFO", f"Starting MCP WebSocket server on {self.host}:{self.port}", "server")
         
         print("DEBUG: Starting WebSocket server...")
@@ -320,7 +309,6 @@ class MCPWebSocketServer:
         return server
     
     async def stop_server(self):
-        """Stop the server and clean up"""
         self.log_manager.log_message("INFO", "Stopping MCP WebSocket server", "server")
         
         # Cancel background tasks

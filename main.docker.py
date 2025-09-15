@@ -11,12 +11,10 @@ from server.config import Config
 
 
 def is_docker():
-    """Check if running inside Docker container"""
     return os.path.exists('/.dockerenv') or os.environ.get('DOCKER_CONTAINER', False)
 
 
 async def serve_static_files():
-    """Serve static files for Docker deployment"""
     try:
         from aiohttp import web, web_runner
         import aiofiles

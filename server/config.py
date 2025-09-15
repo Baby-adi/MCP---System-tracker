@@ -1,13 +1,9 @@
-"""
-Configuration management for the MCP server using environment variables.
-"""
 import os
 from typing import Optional
 from pathlib import Path
 
 # Load environment variables from .env file
 def load_env_file(env_path: str = ".env"):
-    """Load environment variables from a file"""
     env_file = Path(env_path)
     if env_file.exists():
         with open(env_file, 'r') as f:
@@ -21,8 +17,6 @@ def load_env_file(env_path: str = ".env"):
 load_env_file()
 
 class Config:
-    """Configuration class for MCP server settings"""
-    
     # Server Configuration
     MCP_HOST: str = os.getenv("MCP_HOST", "0.0.0.0")
     MCP_PORT: int = int(os.getenv("MCP_PORT", "8765"))

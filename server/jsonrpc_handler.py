@@ -1,6 +1,3 @@
-"""
-JSON-RPC 2.0 protocol handler for the MCP server.
-"""
 import json
 import uuid
 import inspect
@@ -9,8 +6,6 @@ from datetime import datetime
 
 
 class JSONRPCError(Exception):
-    """Custom exception for JSON-RPC errors"""
-    
     def __init__(self, code: int, message: str, data: Any = None):
         self.code = code
         self.message = message
@@ -19,8 +14,7 @@ class JSONRPCError(Exception):
 
 
 class JSONRPCHandler:
-    """Handles JSON-RPC 2.0 protocol requests and responses"""
-    
+    # Handles JSON-RPC 2.0 protocol requests and responses
     # Standard JSON-RPC error codes
     PARSE_ERROR = -32700
     INVALID_REQUEST = -32600
@@ -33,18 +27,12 @@ class JSONRPCHandler:
         self.subscriptions: Dict[str, set] = {}  # method_name -> set of client_ids
         
     def register_method(self, name: str, method: Callable):
-        """Register a method that can be called via JSON-RPC"""
         self.methods[name] = method
     
     def register_subscription(self, name: str):
-        """Register a subscription method"""
         self.subscriptions[name] = set()
     
     async def handle_request(self, message: str, client_id: str = None) -> Optional[str]:
-        """
-        Handle incoming JSON-RPC request.
-        Returns response string or None for notifications.
-        """
         try:
             # Parse the JSON
             try:
@@ -68,7 +56,6 @@ class JSONRPCHandler:
             return self._create_error_response(None, self.INTERNAL_ERROR, f"Internal error: {str(e)}")
     
     async def _handle_single_request(self, request: Dict, client_id: str = None) -> Optional[Dict]:
-        """Handle a single JSON-RPC request"""
         request_id = request.get("id")
         
         # Validate request structure
@@ -123,7 +110,6 @@ class JSONRPCHandler:
             return None
     
     async def _handle_subscription(self, method_name: str, params: Dict, client_id: str, request_id: Any) -> Dict:
-        """Handle subscription requests"""
         # Extract the actual subscription method name
         sub_method = method_name.replace("subscribe_", "")
         
@@ -137,7 +123,7 @@ class JSONRPCHandler:
             return self._create_error_response(request_id, self.INVALID_REQUEST, "Client ID required for subscriptions")
     
     async def _handle_unsubscription(self, method_name: str, params: Dict, client_id: str, request_id: Any) -> Dict:
-        """Handle unsubscription requests"""
+        # Handle unsubscription requests
         # Extract the actual subscription method name
         sub_method = method_name.replace("unsubscribe_", "")
         
@@ -151,16 +137,13 @@ class JSONRPCHandler:
             return self._create_success_response(request_id, {"unsubscribed": False, "method": sub_method})
     
     def get_subscribers(self, method_name: str) -> set:
-        """Get list of subscribers for a method"""
         return self.subscriptions.get(method_name, set())
     
     def remove_client_subscriptions(self, client_id: str):
-        """Remove all subscriptions for a client"""
         for subscribers in self.subscriptions.values():
             subscribers.discard(client_id)
     
     def _create_success_response(self, request_id: Any, result: Any) -> Dict:
-        """Create a successful JSON-RPC response"""
         return {
             "jsonrpc": "2.0",
             "id": request_id,
@@ -168,7 +151,6 @@ class JSONRPCHandler:
         }
     
     def _create_error_response(self, request_id: Any, code: int, message: str, data: Any = None) -> Dict:
-        """Create an error JSON-RPC response"""
         error = {
             "code": code,
             "message": message
@@ -183,7 +165,6 @@ class JSONRPCHandler:
         }
     
     def create_notification(self, method: str, params: Any = None) -> str:
-        """Create a JSON-RPC notification (no id, no response expected)"""
         notification = {
             "jsonrpc": "2.0",
             "method": method,
