@@ -54,6 +54,142 @@ A comprehensive real-time system monitoring solution built with a Python MCP (Mo
 - **State Management**: React Context API for theme management
 - **WebSocket Client**: Native WebSocket API with JSON-RPC 2.0
 
+## How This Custom MCP Implementation Works
+
+### What is MCP (Model Context Protocol)?
+The Model Context Protocol (MCP) is an open standard for connecting AI assistants to data sources and tools. This project implements a **custom MCP server** specifically designed for system monitoring, demonstrating how MCP can be extended beyond traditional AI assistant use cases.
+
+### Our Custom MCP Architecture
+
+#### 1. **MCP Server Core (`server/jsonrpc_handler.py`)**
+```python
+# Custom JSON-RPC 2.0 implementation with MCP-style method registration
+class JSONRPCHandler:
+    def __init__(self):
+        self.methods = {}
+        self.subscriptions = {}
+    
+    def register_method(self, name, handler):
+        self.methods[name] = handler
+    
+    def register_subscription(self, name, handler):
+        self.subscriptions[name] = handler
+```
+
+**Key Features:**
+- **Method Registration**: Dynamic registration of system monitoring functions
+- **Subscription Model**: Real-time data streaming for live updates
+- **Error Handling**: Robust JSON-RPC 2.0 error responses
+- **Async Support**: Full asyncio integration for non-blocking operations
+
+#### 2. **System Monitoring Integration (`server/system_monitor.py`)**
+```python
+# Real-time system metrics collection using psutil
+class SystemMonitor:
+    async def get_system_stats(self):
+        return {
+            "cpu": psutil.cpu_percent(interval=1),
+            "memory": psutil.virtual_memory()._asdict(),
+            "disk": psutil.disk_usage('/')._asdict()
+        }
+```
+
+**MCP Method Bindings:**
+- `system.get_stats` → Real-time CPU, memory, disk metrics
+- `system.get_processes` → Running process information
+- `logs.get_recent` → System log retrieval
+- `alerts.check` → Threshold-based alerting
+
+#### 3. **WebSocket Communication Layer (`server/websocket_server.py`)**
+```python
+# WebSocket server with JSON-RPC 2.0 protocol
+class MCPWebSocketServer:
+    async def handle_client(self, websocket, path):
+        async for message in websocket:
+            request = json.loads(message)
+            response = await self.rpc_handler.handle_request(request)
+            await websocket.send(json.dumps(response))
+```
+
+**Protocol Flow:**
+1. **Client Connection**: React dashboard connects via WebSocket
+2. **Method Invocation**: JSON-RPC 2.0 requests for system data
+3. **Subscription Management**: Real-time updates via subscription model
+4. **Error Handling**: Standardized error responses
+
+#### 4. **React Client Integration (`dashboard/src/services/MCPWebSocketService.ts`)**
+```typescript
+// MCP client with automatic reconnection and subscription management
+class MCPWebSocketService {
+    async callMethod(method: string, params: any): Promise<any> {
+        const request = {
+            jsonrpc: "2.0",
+            id: this.generateId(),
+            method,
+            params
+        };
+        return this.sendRequest(request);
+    }
+    
+    subscribe(method: string, callback: Function): void {
+        this.subscriptions.set(method, callback);
+    }
+}
+```
+
+### Data Flow Example
+
+**1. System Metrics Request:**
+```json
+// Client → Server
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "system.get_stats",
+    "params": {}
+}
+
+// Server → Client  
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+        "cpu": 45.2,
+        "memory": {"total": 16777216, "used": 8388608},
+        "disk": {"total": 1000000, "used": 500000}
+    }
+}
+```
+
+**2. Real-time Subscription:**
+```json
+// Client subscribes to live updates
+{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "subscribe",
+    "params": {"event": "system.stats", "interval": 2000}
+}
+
+// Server sends periodic updates
+{
+    "jsonrpc": "2.0",
+    "method": "system.stats",
+    "params": {"cpu": 47.1, "memory": {...}, "timestamp": "2025-09-15T10:30:00Z"}
+}
+```
+
+### Why This MCP Design Works
+
+1. **Standardized Protocol**: JSON-RPC 2.0 ensures compatibility and extensibility
+2. **Real-time Capability**: WebSocket + subscription model for live monitoring
+3. **Modular Architecture**: Easy to add new monitoring capabilities
+4. **Type Safety**: Full TypeScript integration on frontend
+5. **Error Resilience**: Robust error handling and automatic reconnection
+6. **Performance**: Async/await throughout for non-blocking operations
+
+This implementation showcases how MCP principles can be applied to create specialized monitoring tools with real-time capabilities, going beyond traditional AI assistant integrations to create powerful system administration tools.
+
 ## Project Structure
 
 ```
@@ -110,7 +246,7 @@ docker run -d --name mcp-monitor \
   -p 3000:3000 -p 8765:8765 \
   -v /proc:/host/proc:ro \
   -v /sys:/host/sys:ro \
-  babyadi/mcp-system-monitor:v1.0.0
+  babyadi/mcp-system-monitor:v1.1.0
 ```
 
 **Docker Hub Repository:** https://hub.docker.com/r/babyadi/mcp-system-monitor
