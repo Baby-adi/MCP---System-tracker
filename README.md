@@ -218,16 +218,26 @@ MCP/
 │   ├── package.json             # Node.js dependencies
 │   └── tailwind.config.js       # Tailwind CSS configuration
 ├── logs/                        # System logs directory (auto-created)
-├── venv/                        # Python virtual environment
-├── main.py                      # Server entry point
+├── venv/                        # Python virtual environment (for local dev)
+├── main.py                      # Local development server entry point
+├── main.docker.py               # Docker container entry point
+├── Dockerfile                   # Production Docker build configuration
+├── docker-compose.yml           # Docker compose for local testing
+├── publish-docker.bat           # Windows Docker publishing script
+├── publish-docker.sh            # Linux/Mac Docker publishing script
 ├── requirements.txt             # Python dependencies
 ├── .env.example                # Environment template
-├── .env                        # Environment configuration
+├── .env                        # Environment configuration (local)
 ├── .gitignore                  # Git ignore patterns
-└── README.md                   # This file
+├── .dockerignore               # Docker ignore patterns
+├── LICENSE                     # MIT License
+└── README.md                   # This comprehensive guide
 ```
 
 ## Quick Start
+
+> **New: Streamlined Docker Deployment**  
+> This project has been optimized for Docker deployment. All setup scripts and development artifacts have been removed for a cleaner, production-ready codebase. The easiest way to run the system monitor is via the pre-built Docker image.
 
 ### Prerequisites
 - **Python 3.8+** (tested with Python 3.9+)
@@ -236,9 +246,9 @@ MCP/
 
 ## Installation Options
 
-### Option 1: Docker (Recommended - Quick Start)
+### Option 1: Docker (Recommended - One Command Setup)
 
-**Pull and run the pre-built Docker image:**
+**The fastest way to get started - no local setup required:**
 
 ```bash
 docker run -d --name mcp-monitor \
@@ -569,5 +579,23 @@ System stats showing but charts frozen
 - Use `STATS_UPDATE_INTERVAL=1` for 1-second updates
 - Increase `PROCESS_MONITOR_LIMIT=20` for more detailed process view
 - Enable debug logging: `LOG_LEVEL=DEBUG`
+
+## Project Evolution
+
+This project has evolved from a development prototype to a production-ready Docker application. Recent optimizations include:
+
+### v1.1.0 - Production Ready
+- **Docker Hub Publication**: Pre-built images available at `babyadi/mcp-system-monitor`
+- **Streamlined Codebase**: Removed setup scripts, development artifacts, and redundant documentation
+- **Single Command Deployment**: Complete system monitor in one `docker run` command
+- **Enhanced Documentation**: Comprehensive MCP implementation details and technical architecture
+
+### Removed Components (No Longer Needed)
+- **Setup Scripts**: `setup.bat`, `setup.sh`, `install-service.bat` - replaced by Docker deployment
+- **Development Files**: Test clients, backup components, build artifacts
+- **Multiple Documentation**: Consolidated `DOCKER.md`, `DOCKER-HUB.md`, `DEPLOYMENT-GUIDE.md` into main README
+- **Development Docker Files**: `Dockerfile.dev`, `docker-compose.dev.yml` - production image published
+
+The result is a clean, professional codebase focused on the core MCP system monitoring functionality with enterprise-grade Docker deployment.
 
 ---
