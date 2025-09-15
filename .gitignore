@@ -46,3 +46,12 @@ dashboard/build/
 # Temporary folders
 tmp/
 temp/
+
+# Backup and test files
+dashboard/src/App.backup.tsx
+dashboard/src/App.full.tsx
+dashboard/src/App.simple.tsx
+dashboard/src/App.test-simple.tsx
+test_ws_client.py
+
+instructions.txt

@@ -4,9 +4,19 @@ import SystemOverview from './components/SystemOverview';
 import LogsPanel from './components/LogsPanel';
 import ProcessesPanel from './components/ProcessesPanel';
 import AlertBanner from './components/AlertBanner';
+import ThemeToggle from './components/ThemeToggle';
+import { ThemeProvider } from './contexts/ThemeContext';
 import './App.css';
 
-const App: React.FC = () => {
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+}
+
+function AppContent() {
   const [mcpService] = useState(() => new MCPWebSocketService());
   const [isConnected, setIsConnected] = useState(false);
   const [currentStats, setCurrentStats] = useState<SystemStats | null>(null);
@@ -132,25 +142,28 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">MCP System Monitor</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MCP System Monitor</h1>
               <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm ${
-                isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                isConnected ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
               }`}>
                 <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
               </div>
             </div>
             
-            <div className="text-sm text-gray-500">
-              {currentStats && (
-                <span>Last updated: {new Date(currentStats.timestamp).toLocaleTimeString()}</span>
-              )}
+            <div className="flex items-center space-x-4">
+              <ThemeToggle />
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {currentStats && (
+                  <span>Last updated: {new Date(currentStats.timestamp).toLocaleTimeString()}</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -175,15 +188,15 @@ const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t mt-16">
+      <footer className="bg-white dark:bg-gray-800 border-t dark:border-gray-700 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="text-center text-sm text-gray-500">
+          <div className="text-center text-sm text-gray-500 dark:text-gray-400">
             MCP System Monitor - Real-time system monitoring dashboard
           </div>
         </div>
       </footer>
     </div>
   );
-};
+}
 
 export default App;

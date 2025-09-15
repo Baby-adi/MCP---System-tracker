@@ -1,145 +1,197 @@
 # MCP System Monitor
 
-A comprehensive system monitoring solution with a Model Context Protocol (MCP) server and React dashboard for real-time monitoring of CPU, memory, GPU, disk usage, processes, and system logs.
+A comprehensive real-time system monitoring solution built with a Python MCP (Model Context Protocol) server and React TypeScript dashboard. Features WebSocket communication with JSON-RPC 2.0 protocol for live monitoring of CPU, memory, GPU, disk usage, processes, and system logs.
 
 ## Features
 
-### MCP Server
-- **Real-time System Monitoring**: CPU, memory, disk, and GPU usage tracking
-- **Process Management**: Monitor top processes by CPU/memory usage
-- **Intelligent Logging**: Automatic system event logging with severity levels
-- **WebSocket Communication**: Real-time data streaming using JSON-RPC 2.0
-- **Alert System**: Configurable thresholds for system resource alerts
+### MCP Server (Python)
+- **Real-time System Monitoring**: CPU, memory, disk, and GPU usage tracking with psutil and GPUtil
+- **Process Management**: Monitor top processes by CPU/memory usage with detailed process information
+- **Intelligent Logging**: Automatic system event logging with severity levels and file rotation
+- **WebSocket Communication**: High-performance real-time data streaming using JSON-RPC 2.0 protocol
+- **Alert System**: Configurable thresholds with automatic alert generation for system resource overload
+- **Background Tasks**: Asynchronous system monitoring with efficient resource usage
 
-### React Dashboard
-- **Live System Overview**: Real-time charts and gauges for system metrics
-- **Process Monitor**: Table view of top processes with filtering
-- **Log Viewer**: Color-coded log entries with search and filtering
-- **Alert Notifications**: Visual indicators for system overload conditions
-- **Dark/Light Theme**: Professional UI with theme switching
-- **Responsive Design**: Works on desktop and mobile devices
+### React Dashboard (TypeScript)
+- **Live System Overview**: Interactive real-time charts and gauges using Recharts library
+- **Process Monitor**: Sortable table view of top processes with CPU/memory usage details
+- **Log Viewer**: Color-coded log entries with real-time updates, search, and filtering capabilities
+- **Alert Notifications**: Visual alert banner system for immediate system overload notifications
+- **Dark/Light Theme Toggle**: Professional UI with persistent theme switching and system preference detection
+- **Responsive Design**: Fully responsive Tailwind CSS design optimized for desktop and mobile devices
+- **Real-time Updates**: WebSocket-based live data updates with connection status indicators
 
 ## Architecture
 
 ```
 ┌─────────────────┐    WebSocket     ┌─────────────────┐
-│   React         │ ◄──────────────► │   MCP Server    │
-│   Dashboard     │   JSON-RPC 2.0   │                 │
+│   React         │ ◄──────────────► │   Python MCP    │
+│   Dashboard     │   JSON-RPC 2.0   │    Server       │
+│  (TypeScript)   │   ws://8765      │  (AsyncIO)      │
 └─────────────────┘                  └─────────────────┘
          │                                    │
-         │                                    │
     ┌────▼────┐                          ┌───▼────┐
-    │ Browser │                          │ System │
-    │   UI    │                          │ Monitor│
+    │Tailwind │                          │ psutil │
+    │Recharts │                          │ GPUtil │
+    │ Lucide  │                          │aiofiles│
     └─────────┘                          └────────┘
 ```
+
+### Technology Stack
+
+**Backend (Python)**
+- **WebSocket Server**: `websockets` library with async/await
+- **System Monitoring**: `psutil` for system metrics, `GPUtil` for GPU monitoring
+- **Protocol**: JSON-RPC 2.0 for structured communication
+- **Logging**: `aiofiles` for async file operations
+- **Background Tasks**: asyncio for concurrent monitoring
+
+**Frontend (React TypeScript)**
+- **Framework**: Create React App with TypeScript
+- **Styling**: Tailwind CSS v3 with dark mode support
+- **Charts**: Recharts for interactive data visualization
+- **Icons**: Lucide React for consistent iconography
+- **State Management**: React Context API for theme management
+- **WebSocket Client**: Native WebSocket API with JSON-RPC 2.0
 
 ## Project Structure
 
 ```
 MCP/
-├── server/                 # Python MCP server
+├── server/                      # Python MCP Server
 │   ├── __init__.py
-│   ├── system_monitor.py   # System stats collection
-│   ├── log_manager.py      # Logging functionality
-│   ├── jsonrpc_handler.py  # JSON-RPC 2.0 protocol
-│   └── websocket_server.py # WebSocket server
-├── dashboard/              # React TypeScript dashboard
+│   ├── system_monitor.py        # System stats collection with psutil/GPUtil
+│   ├── log_manager.py           # Async logging with file rotation
+│   ├── jsonrpc_handler.py       # JSON-RPC 2.0 protocol implementation
+│   └── websocket_server.py      # WebSocket server with client management
+├── dashboard/                   # React TypeScript Dashboard
 │   ├── src/
-│   ├── public/
-│   └── package.json
-├── logs/                   # System logs directory
-├── venv/                   # Python virtual environment
-├── main.py                 # Server entry point
-├── .env.example           # Environment template
-├── .env                   # Environment configuration
-└── README.md
+│   │   ├── components/          # React components
+│   │   │   ├── SystemOverview.tsx    # System stats with charts
+│   │   │   ├── ProcessesPanel.tsx    # Process monitoring table
+│   │   │   ├── LogsPanel.tsx         # Log viewer with filtering
+│   │   │   ├── AlertBanner.tsx       # Alert notification system
+│   │   │   └── ThemeToggle.tsx       # Dark/light theme switcher
+│   │   ├── contexts/
+│   │   │   └── ThemeContext.tsx      # Theme management context
+│   │   ├── services/
+│   │   │   └── MCPWebSocketService.ts # WebSocket client with JSON-RPC
+│   │   ├── types/               # TypeScript type definitions
+│   │   └── App.tsx              # Main application component
+│   ├── public/                  # Static assets
+│   ├── package.json             # Node.js dependencies
+│   └── tailwind.config.js       # Tailwind CSS configuration
+├── logs/                        # System logs directory (auto-created)
+├── venv/                        # Python virtual environment
+├── main.py                      # Server entry point
+├── requirements.txt             # Python dependencies
+├── .env.example                # Environment template
+├── .env                        # Environment configuration
+├── .gitignore                  # Git ignore patterns
+└── README.md                   # This file
 ```
 
 ## Quick Start
 
 ### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- npm or yarn
+- **Python 3.8+** (tested with Python 3.9+)
+- **Node.js 16+** with npm
+- **Git** for version control
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Baby-adi/MCP---System-tracker.git
    cd MCP
    ```
 
 2. **Setup Python Environment**
    ```bash
-   # Activate virtual environment
-   # Windows:
-   venv\Scripts\activate
+   # Windows (PowerShell):
+   .\venv\Scripts\Activate.ps1
+   
    # Linux/Mac:
    source venv/bin/activate
    
-   # Install Python dependencies
-   pip install psutil websockets aiofiles fastapi uvicorn pydantic GPUtil
+   # Install dependencies (already included)
+   pip install -r requirements.txt
    ```
 
 3. **Setup React Dashboard**
    ```bash
    cd dashboard
    npm install
-   npm install recharts lucide-react @radix-ui/react-* tailwindcss
    ```
 
-4. **Configure Environment**
+4. **Configure Environment (Optional)**
    ```bash
-   # Copy environment template and configure
+   # Copy and edit environment template
    cp .env.example .env
-   # Edit .env with your preferred settings
+   # Default values work for local development
    ```
 
 ### Running the Application
 
-1. **Start the MCP Server**
+1. **Start the MCP Server** (Terminal 1)
    ```bash
+   # From project root with venv activated
    python main.py
    ```
-   Server will start on `ws://localhost:8765`
+   Server runs on `ws://localhost:8765`
 
-2. **Start the React Dashboard**
+2. **Start the React Dashboard** (Terminal 2)
    ```bash
    cd dashboard
    npm start
    ```
-   Dashboard will open at `http://localhost:3000`
+   Dashboard opens at `http://localhost:3000`
+
+3. **View the Dashboard**
+   - Open your browser to `http://localhost:3000`
+   - Real-time system monitoring should start automatically
+   - Toggle between light/dark themes using the button in the header
 
 ## Configuration
 
-### Environment Variables
+### Environment Variables (.env)
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `MCP_HOST` | localhost | Server host address |
+| `MCP_HOST` | 0.0.0.0 | WebSocket server host (0.0.0.0 for all interfaces) |
 | `MCP_PORT` | 8765 | WebSocket server port |
-| `LOG_LEVEL` | INFO | Logging level (DEBUG, INFO, WARNING, ERROR) |
-| `STATS_UPDATE_INTERVAL` | 2 | Stats update frequency (seconds) |
-| `CPU_ALERT_THRESHOLD` | 80 | CPU usage alert threshold (%) |
-| `MEMORY_ALERT_THRESHOLD` | 90 | Memory usage alert threshold (%) |
-| `DISK_ALERT_THRESHOLD` | 95 | Disk usage alert threshold (%) |
+| `LOG_LEVEL` | INFO | Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL) |
+| `STATS_UPDATE_INTERVAL` | 2.0 | System stats update frequency (seconds) |
+| `CPU_ALERT_THRESHOLD` | 80.0 | CPU usage alert threshold (%) |
+| `MEMORY_ALERT_THRESHOLD` | 90.0 | Memory usage alert threshold (%) |
+| `DISK_ALERT_THRESHOLD` | 95.0 | Disk usage alert threshold (%) |
+| `GPU_ALERT_THRESHOLD` | 90.0 | GPU memory usage alert threshold (%) |
+| `PROCESS_MONITOR_LIMIT` | 10 | Number of top processes to monitor |
+| `LOG_RETENTION_DAYS` | 7 | Days to retain log files |
 
-### Alert Thresholds
+### Alert System
 
-The system monitors and alerts on:
-- CPU usage > 80%
-- Memory usage > 90%
-- Disk usage > 95%
-- GPU memory usage > 90% (if GPU detected)
+The system automatically monitors and generates alerts for:
+- **CPU Usage** > 80% (configurable)
+- **Memory Usage** > 90% (configurable)  
+- **Disk Usage** > 95% (configurable)
+- **GPU Memory** > 90% (if GPU detected, configurable)
+- **Process Anomalies** (high CPU/memory usage)
+
+### Theme System
+
+- **Light Mode**: Professional light theme (default)
+- **Dark Mode**: Dark theme with proper contrast
+- **Auto-detection**: Respects system theme preference on first visit
+- **Persistence**: Theme choice saved in localStorage
 
 ## API Documentation
 
 ### JSON-RPC 2.0 Methods
 
-#### `get_system_stats`
-Returns comprehensive system statistics.
+#### System Statistics
+
+**`get_system_stats`** - Get comprehensive system metrics
 ```json
 {
   "jsonrpc": "2.0",
@@ -148,26 +200,47 @@ Returns comprehensive system statistics.
 }
 ```
 
-#### `get_processes`
-Returns top processes by CPU or memory usage.
+**Response:**
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "timestamp": "2025-09-15T10:30:45.123Z",
+    "cpu": {"usage": 25.4, "cores": 8, "frequency": 3200},
+    "memory": {"used": 8.2, "total": 16.0, "percent": 51.25},
+    "disk": {"used": 250.5, "total": 500.0, "percent": 50.1},
+    "gpu": {"memory_used": 2.1, "memory_total": 8.0, "utilization": 15.2},
+    "uptime": 86400
+  },
+  "id": 1
+}
+```
+
+#### Process Management
+
+**`get_processes`** - Get top processes by resource usage
 ```json
 {
   "jsonrpc": "2.0",
   "method": "get_processes",
-  "params": {"limit": 10, "sort_by": "cpu"},
+  "params": {
+    "limit": 10,
+    "sort_by": "cpu"  // or "memory"
+  },
   "id": 2
 }
 ```
 
-#### `get_logs`
-Returns filtered system logs.
+#### Logging
+
+**`get_logs`** - Retrieve filtered system logs
 ```json
 {
   "jsonrpc": "2.0",
   "method": "get_logs",
   "params": {
     "limit": 100,
-    "level_filter": "ERROR",
+    "level_filter": "ERROR",  // DEBUG, INFO, WARNING, ERROR, CRITICAL
     "search_term": "memory",
     "hours_back": 24
   },
@@ -175,74 +248,192 @@ Returns filtered system logs.
 }
 ```
 
-### WebSocket Subscriptions
+### Real-time Subscriptions
 
-Subscribe to real-time updates:
-- `subscribe_system_stats` - Live system metrics
-- `subscribe_alerts` - System alert notifications
-- `subscribe_logs` - New log entries
+**WebSocket Subscriptions** for live updates:
+
+- **`subscribe_system_stats`** - Real-time system metrics (every 2 seconds)
+- **`subscribe_alerts`** - Immediate alert notifications  
+- **`subscribe_logs`** - New log entries as they occur
+
+**Example Subscription:**
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "subscribe_system_stats",
+  "params": {},
+  "id": 1
+}
+```
 
 ## Development
 
-### Adding New Metrics
+### Adding New Features
 
+**System Metrics:**
 1. Extend `SystemMonitor` class in `server/system_monitor.py`
-2. Add new JSON-RPC methods in `server/websocket_server.py`
-3. Create React components in `dashboard/src/components/`
-4. Update WebSocket handlers for real-time updates
+2. Add new methods to `JSONRPCHandler` in `server/jsonrpc_handler.py`
+3. Update WebSocket handlers in `server/websocket_server.py`
+4. Create corresponding React components in `dashboard/src/components/`
 
-### Testing
+**UI Components:**
+1. Create new TypeScript components in `dashboard/src/components/`
+2. Add to main `App.tsx` and update routing if needed
+3. Implement dark mode support using Tailwind classes
+4. Add proper TypeScript interfaces in `dashboard/src/types/`
 
+### Code Quality
+
+**Python (Backend):**
 ```bash
-# Test MCP server
-python -m pytest tests/
+# Install development dependencies
+pip install black flake8 pytest pytest-asyncio
 
-# Test React dashboard
-cd dashboard
-npm test
+# Format code
+black server/ main.py
+
+# Lint code  
+flake8 server/ main.py
+
+# Run tests
+pytest tests/ -v
 ```
+
+**TypeScript (Frontend):**
+```bash
+cd dashboard
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+
+# Testing
+npm test
+
+# Build for production
+npm run build
+```
+
+### Project Dependencies
+
+**Python Requirements (`requirements.txt`):**
+- `psutil>=5.9.0` - System monitoring
+- `websockets>=11.0.0` - WebSocket server
+- `aiofiles>=23.0.0` - Async file operations  
+- `pydantic>=2.0.0` - Data validation
+- `GPUtil>=1.4.0` - GPU monitoring
+
+**Node.js Dependencies (`dashboard/package.json`):**
+- `react` & `react-dom` - UI framework
+- `typescript` - Type safety
+- `tailwindcss` - Styling framework
+- `recharts` - Data visualization
+- `lucide-react` - Icon library
 
 ## Security Considerations
 
-- WebSocket server runs on localhost by default
-- No authentication implemented (suitable for local monitoring)
-- Log files may contain sensitive system information
-- Environment variables should be secured in production
+- **Local Development**: WebSocket server binds to localhost by default for security
+- **No Authentication**: Current implementation is designed for local system monitoring only
+- **Log Security**: System logs may contain sensitive information - secure access appropriately
+- **Environment Variables**: Store sensitive configuration in `.env` file (not committed to Git)
+- **Production Deployment**: Add authentication, HTTPS, and access controls for production use
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Fork** the repository on GitHub
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request with detailed description
+
+### Contribution Guidelines
+- Follow existing code style and conventions
+- Add TypeScript types for new frontend features
+- Include docstrings for new Python functions
+- Test your changes thoroughly
+- Update documentation as needed
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **GPU monitoring not working**: Install NVIDIA drivers and ensure GPUtil can detect GPU
-2. **WebSocket connection failed**: Check if MCP server is running and port 8765 is available
-3. **Permission errors on Windows**: Run as administrator for full system access
-4. **High CPU usage**: Adjust `STATS_UPDATE_INTERVAL` to reduce monitoring frequency
+**WebSocket Connection Issues**
+```
+Error: WebSocket connection failed
+```
+- **Solution**: Ensure MCP server is running (`python main.py`)
+- **Check**: Port 8765 is not blocked by firewall
+- **Windows**: Use IPv4 binding (server handles this automatically)
+
+**GPU Monitoring Not Working**
+```
+Warning: GPU monitoring unavailable
+```
+- **Solution**: Install NVIDIA drivers and ensure GPU is detected
+- **Check**: `nvidia-smi` command works in terminal
+- **Alternative**: GPU monitoring gracefully degrades if not available
+
+**High CPU Usage**
+```
+Dashboard consuming high CPU
+```
+- **Solution**: Increase `STATS_UPDATE_INTERVAL` in `.env` (default: 2 seconds)
+- **Alternative**: Reduce chart data retention in frontend
+- **Check**: Background processes in Task Manager
+
+**Permission Errors (Windows)**
+```
+PermissionError: Access denied
+```
+- **Solution**: Run terminal as Administrator for full system access
+- **Alternative**: Some metrics may be limited without admin rights
+- **Note**: Process information requires elevated permissions
+
+**Charts Not Updating**
+```
+System stats showing but charts frozen
+```
+- **Solution**: Check browser console for WebSocket errors
+- **Fix**: Refresh page to reset WebSocket connection
+- **Check**: Network tab in browser dev tools
 
 ### Performance Optimization
 
-- Increase `STATS_UPDATE_INTERVAL` for lower resource usage
-- Limit `PROCESS_MONITOR_LIMIT` to reduce process scanning overhead
-- Configure log retention to prevent disk space issues
+**For Lower Resource Usage:**
+- Set `STATS_UPDATE_INTERVAL=5` for 5-second updates instead of 2
+- Reduce `PROCESS_MONITOR_LIMIT=5` to monitor fewer processes
+- Disable GPU monitoring if not needed
+
+**For Better Responsiveness:**
+- Use `STATS_UPDATE_INTERVAL=1` for 1-second updates
+- Increase `PROCESS_MONITOR_LIMIT=20` for more detailed process view
+- Enable debug logging: `LOG_LEVEL=DEBUG`
 
 ## Roadmap
 
-- [ ] Historical data storage and trending
-- [ ] Multi-node monitoring support
-- [ ] Authentication and security features
-- [ ] Email/Slack alert notifications
-- [ ] Docker containerization
-- [ ] Database persistence
-- [ ] Process management (kill/restart)
-- [ ] Performance profiling tools
+### Planned Features
+- [ ] **Historical Data**: Database storage for trend analysis
+- [ ] **Multi-node Support**: Monitor multiple systems from one dashboard
+- [ ] **Authentication**: User management and secure access
+- [ ] **Notifications**: Email/Slack alerts for critical events
+- [ ] **Docker Support**: Containerized deployment
+- [ ] **Data Persistence**: SQLite/PostgreSQL integration
+- [ ] **Process Management**: Kill/restart processes from dashboard
+- [ ] **Advanced Analytics**: Performance profiling and anomaly detection
+
+### Recently Added
+- [x] **Dark/Light Theme**: Complete theme system with persistence
+- [x] **Responsive Design**: Mobile-optimized dashboard
+- [x] **Real-time WebSocket**: JSON-RPC 2.0 communication
+- [x] **Modern UI**: Tailwind CSS with professional design
+- [x] **Interactive Charts**: Recharts integration with live data
+
+---
+
+**Made with care for system administrators and developers who need reliable, real-time system monitoring.**
